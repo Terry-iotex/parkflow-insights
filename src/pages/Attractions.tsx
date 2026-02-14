@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { generateAttractions, getZoneNames, Attraction } from '@/lib/mockData';
-import { Plus, Search, Pencil, Sparkles, Video, Radio, ExternalLink } from 'lucide-react';
+import { Plus, Search, Pencil, Video, Radio, ExternalLink } from 'lucide-react';
 
 const STREAM_URL = 'https://www.youtube.com/watch?v=m15UeZ_WtHk';
 
@@ -196,10 +196,6 @@ export default function Attractions() {
                       </DialogFooter>
                     </DialogContent>
                   </Dialog>
-                  <Button variant="outline" size="sm" className="text-xs h-8 gap-1 border-primary/30 text-primary hover:bg-primary/10">
-                    <Sparkles className="w-3 h-3" />
-                    Trio {lang === 'zh' ? '工具' : 'Tools'}
-                  </Button>
                 </div>
               </div>
 
