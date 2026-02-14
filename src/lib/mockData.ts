@@ -6,14 +6,17 @@ export interface Attraction {
   name: { zh: string; en: string };
   icon: string;
   zone: string;
+  zoneName: { zh: string; en: string };
   capacity: number;
   status: 'operating' | 'maintenance' | 'closed';
   currentQueue: number;
   waitTimeMinutes: number;
   maxWaitToday: number;
   throughputPerHour: number;
-  position: { x: number; y: number }; // SVG map position (%)
+  position: { x: number; y: number };
   crowdLevel: 'low' | 'medium' | 'high' | 'critical';
+  streamUrl: string;
+  cameraPurpose: string;
 }
 
 export interface ZoneData {
@@ -47,11 +50,10 @@ function getTimeMultiplier(): number {
   const minute = new Date().getMinutes();
   const t = hour + minute / 60;
   
-  // Morning ramp: 8-12, Peak: 12-15, Afternoon: 15-18, Evening drop: 18-21
   if (t < 8) return 0.1;
   if (t < 10) return 0.3 + (t - 8) * 0.15;
   if (t < 12) return 0.6 + (t - 10) * 0.2;
-  if (t < 14) return 1.0; // Peak
+  if (t < 14) return 1.0;
   if (t < 16) return 0.95 - (t - 14) * 0.05;
   if (t < 18) return 0.85 - (t - 16) * 0.1;
   if (t < 20) return 0.65 - (t - 18) * 0.15;
@@ -59,7 +61,6 @@ function getTimeMultiplier(): number {
   return 0.1;
 }
 
-// Add noise to a value
 function noise(base: number, variance: number): number {
   return Math.max(0, Math.round(base + (Math.random() - 0.5) * 2 * variance));
 }
@@ -71,15 +72,25 @@ function getCrowdLevel(ratio: number): 'low' | 'medium' | 'high' | 'critical' {
   return 'critical';
 }
 
+const ZONE_NAMES: Record<string, { zh: string; en: string }> = {
+  thrill: { zh: '冒险区', en: 'Adventure Zone' },
+  family: { zh: '亲子区', en: 'Kids Zone' },
+  scenic: { zh: '观光区', en: 'Scenic Zone' },
+  food: { zh: '美食广场', en: 'Food Court' },
+  entrance: { zh: '入口广场', en: 'Entry Plaza' },
+};
+
+const STREAM_URL = 'https://www.youtube.com/watch?v=m15UeZ_WtHk';
+
 const BASE_ATTRACTIONS: Omit<Attraction, 'currentQueue' | 'waitTimeMinutes' | 'maxWaitToday' | 'crowdLevel'>[] = [
-  { id: 'coaster', name: { zh: '雷霆过山车', en: 'Thunder Coaster' }, icon: '🎢', zone: 'thrill', capacity: 24, status: 'operating', throughputPerHour: 720, position: { x: 25, y: 20 } },
-  { id: 'carousel', name: { zh: '梦幻旋转木马', en: 'Dream Carousel' }, icon: '🎠', zone: 'family', capacity: 48, status: 'operating', throughputPerHour: 960, position: { x: 60, y: 65 } },
-  { id: 'ferris', name: { zh: '星空摩天轮', en: 'Starlight Ferris Wheel' }, icon: '🎡', zone: 'scenic', capacity: 120, status: 'operating', throughputPerHour: 480, position: { x: 78, y: 30 } },
-  { id: 'splash', name: { zh: '激流勇进', en: 'Splash Adventure' }, icon: '🌊', zone: 'thrill', capacity: 20, status: 'operating', throughputPerHour: 600, position: { x: 15, y: 55 } },
-  { id: 'haunted', name: { zh: '幽灵古堡', en: 'Haunted Castle' }, icon: '🏰', zone: 'thrill', capacity: 30, status: 'operating', throughputPerHour: 540, position: { x: 40, y: 35 } },
-  { id: 'teacup', name: { zh: '疯狂茶杯', en: 'Spinning Teacups' }, icon: '🍵', zone: 'family', capacity: 36, status: 'operating', throughputPerHour: 720, position: { x: 50, y: 80 } },
-  { id: 'pirate', name: { zh: '海盗船', en: 'Pirate Ship' }, icon: '🏴‍☠️', zone: 'thrill', capacity: 40, status: 'operating', throughputPerHour: 800, position: { x: 35, y: 70 } },
-  { id: 'bumper', name: { zh: '碰碰车', en: 'Bumper Cars' }, icon: '🚗', zone: 'family', capacity: 20, status: 'operating', throughputPerHour: 400, position: { x: 70, y: 50 } },
+  { id: 'coaster', name: { zh: '高空过山车', en: 'Sky Coaster' }, icon: '🎢', zone: 'thrill', zoneName: ZONE_NAMES.thrill, capacity: 24, status: 'operating', throughputPerHour: 720, position: { x: 25, y: 20 }, streamUrl: STREAM_URL, cameraPurpose: 'queue' },
+  { id: 'carousel', name: { zh: '旋转木马', en: 'Carousel' }, icon: '🎠', zone: 'family', zoneName: ZONE_NAMES.family, capacity: 48, status: 'operating', throughputPerHour: 960, position: { x: 60, y: 65 }, streamUrl: STREAM_URL, cameraPurpose: 'queue' },
+  { id: 'ferris', name: { zh: '星空摩天轮', en: 'Starlight Wheel' }, icon: '🎡', zone: 'scenic', zoneName: ZONE_NAMES.scenic, capacity: 120, status: 'operating', throughputPerHour: 480, position: { x: 78, y: 30 }, streamUrl: STREAM_URL, cameraPurpose: 'crowd' },
+  { id: 'splash', name: { zh: '激流勇进', en: 'River Rapids' }, icon: '🌊', zone: 'thrill', zoneName: ZONE_NAMES.thrill, capacity: 20, status: 'operating', throughputPerHour: 600, position: { x: 15, y: 55 }, streamUrl: STREAM_URL, cameraPurpose: 'queue' },
+  { id: 'haunted', name: { zh: '幽灵古堡', en: 'Haunted Castle' }, icon: '🏰', zone: 'thrill', zoneName: ZONE_NAMES.thrill, capacity: 30, status: 'operating', throughputPerHour: 540, position: { x: 40, y: 35 }, streamUrl: STREAM_URL, cameraPurpose: 'safety' },
+  { id: 'teacup', name: { zh: '疯狂茶杯', en: 'Spinning Teacups' }, icon: '🍵', zone: 'family', zoneName: ZONE_NAMES.family, capacity: 36, status: 'operating', throughputPerHour: 720, position: { x: 50, y: 80 }, streamUrl: STREAM_URL, cameraPurpose: 'queue' },
+  { id: 'pirate', name: { zh: '海盗船', en: 'Pirate Ship' }, icon: '🏴‍☠️', zone: 'thrill', zoneName: ZONE_NAMES.thrill, capacity: 40, status: 'operating', throughputPerHour: 800, position: { x: 35, y: 70 }, streamUrl: STREAM_URL, cameraPurpose: 'queue' },
+  { id: 'bumper', name: { zh: '碰碰车', en: 'Bumper Cars' }, icon: '🚗', zone: 'family', zoneName: ZONE_NAMES.family, capacity: 20, status: 'operating', throughputPerHour: 400, position: { x: 70, y: 50 }, streamUrl: STREAM_URL, cameraPurpose: 'crowd' },
 ];
 
 export function generateAttractions(): Attraction[] {
@@ -102,14 +113,18 @@ export function generateAttractions(): Attraction[] {
   });
 }
 
+export function getZoneNames() {
+  return ZONE_NAMES;
+}
+
 export function generateZones(): ZoneData[] {
   const mult = getTimeMultiplier();
   const zones = [
-    { id: 'thrill', name: { zh: '刺激区', en: 'Thrill Zone' }, capacity: 3000 },
-    { id: 'family', name: { zh: '亲子区', en: 'Family Zone' }, capacity: 4000 },
-    { id: 'scenic', name: { zh: '观光区', en: 'Scenic Zone' }, capacity: 2500 },
-    { id: 'food', name: { zh: '美食广场', en: 'Food Court' }, capacity: 2000 },
-    { id: 'entrance', name: { zh: '入口大道', en: 'Main Entrance' }, capacity: 3000 },
+    { id: 'thrill', name: ZONE_NAMES.thrill, capacity: 3000 },
+    { id: 'family', name: ZONE_NAMES.family, capacity: 4000 },
+    { id: 'scenic', name: ZONE_NAMES.scenic, capacity: 2500 },
+    { id: 'food', name: ZONE_NAMES.food, capacity: 2000 },
+    { id: 'entrance', name: ZONE_NAMES.entrance, capacity: 3000 },
   ];
   
   return zones.map(z => {
@@ -156,7 +171,7 @@ export function generateAlerts(): Alert[] {
     {
       type: 'critical',
       title: { zh: '过山车排队超限', en: 'Coaster Queue Exceeded' },
-      description: { zh: '雷霆过山车排队人数已达 280 人，等待时间超过 45 分钟', en: 'Thunder Coaster queue reached 280 people, wait time exceeding 45 min' },
+      description: { zh: '高空过山车排队人数已达 280 人，等待时间超过 45 分钟', en: 'Sky Coaster queue reached 280 people, wait time exceeding 45 min' },
       suggestion: { zh: '🚨 建议开放临时快速通道，分流排队游客', en: '🚨 Suggest opening temporary fast lane to divert queuing visitors' },
       zone: 'thrill',
     },
@@ -170,7 +185,7 @@ export function generateAlerts(): Alert[] {
     {
       type: 'warning',
       title: { zh: '旋转木马人手不足', en: 'Carousel Understaffed' },
-      description: { zh: '梦幻旋转木马区域游客增多，当前工作人员仅 2 名', en: 'Dream Carousel area visitor count increasing, only 2 staff present' },
+      description: { zh: '旋转木马区域游客增多，当前工作人员仅 2 名', en: 'Carousel area visitor count increasing, only 2 staff present' },
       suggestion: { zh: '👷 建议增加 2 名工作人员到旋转木马区域', en: '👷 Suggest adding 2 staff members to carousel area' },
       zone: 'family',
     },
@@ -208,7 +223,6 @@ export function generateSuggestions(): Array<{ icon: string; text: { zh: string;
   ];
 }
 
-// Crowd Analytics data
 export function generateHourlyVisitors(): Array<{ hour: string; today: number; average: number }> {
   const data = [];
   for (let h = 8; h <= 21; h++) {
@@ -222,10 +236,10 @@ export function generateHourlyVisitors(): Array<{ hour: string; today: number; a
 
 export function generateZoneDistribution(): Array<{ name: string; nameEn: string; value: number; color: string }> {
   return [
-    { name: '刺激区', nameEn: 'Thrill', value: 35, color: 'hsl(0, 72%, 51%)' },
-    { name: '亲子区', nameEn: 'Family', value: 28, color: 'hsl(210, 100%, 55%)' },
+    { name: '冒险区', nameEn: 'Adventure', value: 35, color: 'hsl(0, 72%, 51%)' },
+    { name: '亲子区', nameEn: 'Kids', value: 28, color: 'hsl(210, 100%, 55%)' },
     { name: '观光区', nameEn: 'Scenic', value: 15, color: 'hsl(160, 70%, 45%)' },
     { name: '美食区', nameEn: 'Food', value: 15, color: 'hsl(38, 92%, 50%)' },
-    { name: '入口区', nameEn: 'Entrance', value: 7, color: 'hsl(270, 60%, 55%)' },
+    { name: '入口区', nameEn: 'Entry', value: 7, color: 'hsl(270, 60%, 55%)' },
   ];
 }
