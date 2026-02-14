@@ -37,7 +37,7 @@ export function TopNav({ totalVisitors, crowdStress, activeAlerts, inflowPerMin 
           </div>
           <div>
             <h1 className="text-sm font-bold tracking-tight leading-tight">
-              {lang === 'zh' ? '游乐园实时运营指挥系统' : 'Park Operation Control System'}
+              {lang === 'zh' ? '游乐园实时运营指挥系统' : 'Theme Park Ops Console'}
             </h1>
             <p className="text-[10px] text-muted-foreground leading-tight">
               Reduce queues · Detect congestion early · Optimize flow · Lower risk
