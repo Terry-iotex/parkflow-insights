@@ -28,34 +28,43 @@ export default function Reports() {
   const totalVisitors = weeklyData.reduce((s, d) => s + d.visitors, 0);
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-lg font-bold">{t('reports.title')}</h1>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-xl font-bold">{t('reports.title')}</h1>
+        <p className="text-xs text-muted-foreground">{lang === 'zh' ? '运营数据汇总与效率分析报告' : 'Operational data summary and efficiency analysis reports'}</p>
+      </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <Card className="glass-panel">
-          <CardContent className="p-4 flex items-center gap-3">
-            <FileText className="w-8 h-8 text-primary" />
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <Card className="glass-panel hover:shadow-lg transition-shadow">
+          <CardContent className="p-5 flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+              <FileText className="w-6 h-6 text-primary" />
+            </div>
             <div>
-              <div className="text-[10px] text-muted-foreground">{lang === 'zh' ? '本周总游客' : 'Weekly Visitors'}</div>
-              <div className="font-mono text-xl font-bold">{totalVisitors.toLocaleString()}</div>
+              <div className="text-[10px] text-muted-foreground uppercase tracking-wider">{lang === 'zh' ? '本周总游客' : 'Weekly Visitors'}</div>
+              <div className="font-mono text-2xl font-bold">{totalVisitors.toLocaleString()}</div>
             </div>
           </CardContent>
         </Card>
-        <Card className="glass-panel">
-          <CardContent className="p-4 flex items-center gap-3">
-            <Smile className="w-8 h-8 text-success" />
+        <Card className="glass-panel hover:shadow-lg transition-shadow">
+          <CardContent className="p-5 flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-success/10 flex items-center justify-center">
+              <Smile className="w-6 h-6 text-success" />
+            </div>
             <div>
-              <div className="text-[10px] text-muted-foreground">{t('reports.satisfaction')}</div>
-              <div className="font-mono text-xl font-bold">{avgSatisfaction}%</div>
+              <div className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('reports.satisfaction')}</div>
+              <div className="font-mono text-2xl font-bold">{avgSatisfaction}%</div>
             </div>
           </CardContent>
         </Card>
-        <Card className="glass-panel">
-          <CardContent className="p-4 flex items-center gap-3">
-            <Gauge className="w-8 h-8 text-warning" />
+        <Card className="glass-panel hover:shadow-lg transition-shadow">
+          <CardContent className="p-5 flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-warning/10 flex items-center justify-center">
+              <Gauge className="w-6 h-6 text-warning" />
+            </div>
             <div>
-              <div className="text-[10px] text-muted-foreground">{t('reports.efficiency')}</div>
-              <div className="font-mono text-xl font-bold">{avgEfficiency}%</div>
+              <div className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('reports.efficiency')}</div>
+              <div className="font-mono text-2xl font-bold">{avgEfficiency}%</div>
             </div>
           </CardContent>
         </Card>
@@ -66,7 +75,7 @@ export default function Reports() {
           <CardTitle className="text-sm">{lang === 'zh' ? '周趋势' : 'Weekly Trends'}</CardTitle>
         </CardHeader>
         <CardContent>
-          <ChartContainer config={chartConfig} className="h-[300px]">
+          <ChartContainer config={chartConfig} className="h-[320px]">
             <LineChart data={weeklyData}>
               <CartesianGrid strokeDasharray="3 3" className="stroke-border/30" />
               <XAxis dataKey="day" tick={{ fontSize: 10 }} />
