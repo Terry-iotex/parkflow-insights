@@ -3,7 +3,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { generateAttractions, generateQueueHistory, Attraction } from '@/lib/mockData';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ArrowUpDown } from 'lucide-react';
 
@@ -32,10 +32,12 @@ export default function QueueMonitor() {
   };
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-lg font-bold">{t('queue.title')}</h1>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Table */}
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-xl font-bold">{t('queue.title')}</h1>
+        <p className="text-xs text-muted-foreground">{lang === 'zh' ? '实时排队数据与趋势预测分析' : 'Real-time queue data and trend prediction analysis'}</p>
+      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <Card className="glass-panel">
           <CardContent className="p-0">
             <Table>
@@ -54,7 +56,7 @@ export default function QueueMonitor() {
                 {sorted.map(a => (
                   <TableRow
                     key={a.id}
-                    className={`cursor-pointer text-xs ${selectedId === a.id ? 'bg-primary/10' : ''}`}
+                    className={`cursor-pointer text-xs hover:bg-muted/50 transition-colors ${selectedId === a.id ? 'bg-primary/10' : ''}`}
                     onClick={() => setSelectedId(a.id)}
                   >
                     <TableCell className="font-medium">
@@ -70,7 +72,6 @@ export default function QueueMonitor() {
           </CardContent>
         </Card>
 
-        {/* Chart */}
         <Card className="glass-panel">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm">
@@ -78,7 +79,7 @@ export default function QueueMonitor() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ChartContainer config={chartConfig} className="h-[300px]">
+            <ChartContainer config={chartConfig} className="h-[320px]">
               <LineChart data={queueData}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-border/30" />
                 <XAxis dataKey="time" tick={{ fontSize: 10 }} />

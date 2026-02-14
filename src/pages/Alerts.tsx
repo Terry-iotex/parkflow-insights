@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { generateAlerts, Alert } from '@/lib/mockData';
 import { AlertTriangle, AlertCircle, Info, CheckCircle2 } from 'lucide-react';
@@ -27,9 +27,12 @@ export default function Alerts() {
   }, []);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-bold">{t('alerts.title')}</h1>
+        <div>
+          <h1 className="text-xl font-bold">{t('alerts.title')}</h1>
+          <p className="text-xs text-muted-foreground">{lang === 'zh' ? '实时预警与 AI 运营建议' : 'Real-time alerts and AI operational suggestions'}</p>
+        </div>
         <div className="flex gap-2 text-xs">
           <Badge variant="destructive" className="text-[10px]">
             {alerts.filter(a => a.type === 'critical' && !a.resolved).length} {t('alerts.critical')}
@@ -39,11 +42,11 @@ export default function Alerts() {
           </Badge>
         </div>
       </div>
-      <div className="space-y-2">
+      <div className="space-y-3">
         {alerts.map(alert => {
           const Icon = typeIcons[alert.type];
           return (
-            <Card key={alert.id} className={`glass-panel border-l-4 ${typeStyles[alert.type]} ${alert.resolved ? 'opacity-50' : ''}`}>
+            <Card key={alert.id} className={`glass-panel border-l-4 ${typeStyles[alert.type]} ${alert.resolved ? 'opacity-50' : ''} hover:shadow-lg transition-shadow`}>
               <CardContent className="p-4">
                 <div className="flex items-start gap-3">
                   <Icon className={`w-5 h-5 mt-0.5 flex-shrink-0 ${alert.type === 'critical' ? 'text-danger' : alert.type === 'warning' ? 'text-warning' : 'text-primary'}`} />
@@ -53,7 +56,7 @@ export default function Alerts() {
                       {alert.resolved && <CheckCircle2 className="w-3.5 h-3.5 text-success" />}
                     </div>
                     <p className="text-xs text-muted-foreground mb-2">{alert.description[lang]}</p>
-                    <div className="text-xs bg-muted/50 rounded-md p-2">
+                    <div className="text-xs bg-muted/50 rounded-md p-2.5">
                       <span className="text-muted-foreground">{t('alerts.suggestion')}:</span>{' '}
                       {alert.suggestion[lang]}
                     </div>
